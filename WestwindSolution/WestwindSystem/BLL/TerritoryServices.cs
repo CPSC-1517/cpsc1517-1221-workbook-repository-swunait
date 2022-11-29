@@ -37,23 +37,59 @@ namespace WestwindSystem.BLL
                 .ToList();
         }
 
-        public List<Territory> FindByRegionId(int regionId)
+        public List<Territory> FindByRegionId(int regionId,
+            int pageNumber,
+            int pageSize,
+            out int totalCount)
         {
             var query = _dbContext
                 .Territories
                 .Where(currentTerritory => currentTerritory.RegionId == regionId)
                 .OrderBy(currentTerritory => currentTerritory.TerritoryDescription);
-            return query.ToList();
+            totalCount = query.Count();
+            int skipRows = (pageNumber - 1) * pageSize;
+            //return query.ToList();
+            return query
+                 .Skip(skipRows)
+                 .Take(pageSize)
+                 .ToList();
         }
 
-        public List<Territory> FindByPartialName(string partialName)
+        public List<Territory> FindByPartialName(string partialName, 
+            int pageNumber,
+            int pageSize,
+            out int totalCount)
         {
             var query = _dbContext
                 .Territories
                 .Where(currentTerritory => currentTerritory.TerritoryDescription.Contains(partialName))
                 .OrderBy(currentTerritory => currentTerritory.TerritoryDescription);
-            return query.ToList();
+            totalCount = query.Count();
+            int skipRows = (pageNumber - 1) * pageSize;
+            //return query.ToList();
+            return query
+                 .Skip(skipRows)
+                 .Take(pageSize)
+                 .ToList();
         }
+
+        //public List<Territory> FindByRegionId(int regionId)
+        //{
+        //    var query = _dbContext
+        //        .Territories
+        //        .Where(currentTerritory => currentTerritory.RegionId == regionId)
+        //        .OrderBy(currentTerritory => currentTerritory.TerritoryDescription);
+        //    return query.ToList();
+        //}
+
+        //public List<Territory> FindByPartialName(string partialName)
+        //{
+        //    var query = _dbContext
+        //        .Territories
+        //        .Where(currentTerritory => currentTerritory.TerritoryDescription.Contains(partialName))
+        //        .OrderBy(currentTerritory => currentTerritory.TerritoryDescription);
+        //    return query.ToList();
+        //}
 
     }
 }
