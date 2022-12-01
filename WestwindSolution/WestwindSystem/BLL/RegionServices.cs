@@ -23,6 +23,13 @@ namespace WestwindSystem.BLL
             return query.ToList();
         }
 
+        public Region? GetById(int regionId)
+        {
+            var query = _dbContext
+                .Regions;
+            return query.FirstOrDefault(currentRegion => currentRegion.RegionId == regionId);
+
+        }
         public List<Region> FindByPartialDescription(string partialDescription)
         {
             var query = _dbContext

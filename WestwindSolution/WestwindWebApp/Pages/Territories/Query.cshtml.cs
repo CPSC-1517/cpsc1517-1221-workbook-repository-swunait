@@ -34,7 +34,7 @@ namespace WestwindWebApp.Pages.Territories
 
         #region Paginator
         //my desired page size
-        private const int PAGE_SIZE = 10;
+        private const int PAGE_SIZE = 5;
         //be able to hold an instance of the Paginator
         public Paginator Pager { get; set; }
         #endregion
@@ -42,61 +42,105 @@ namespace WestwindWebApp.Pages.Territories
         public string InfoMessage { get; set; }
         public string ErrorMessage { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string? SearchBy { get; set; }
+        [BindProperty(SupportsGet = true)]
+        public string? SearchValue { get; set; }
+
         public void OnGet(int? currentPage)
         {
-            try
+            if (SearchBy != null && SearchValue != null)
             {
-                //determine the current page number
-                int pagenumber = currentPage.HasValue ? currentPage.Value : 1;
-                //setup the current state of the paginator (sizing)
-                PageState current = new(pagenumber, PAGE_SIZE);
-                //temporary local integer to hold the results of the query's total collection size
-                //  this will be need by the Paginator during the paginator's execution
-                int totalcount;
+                if (SearchBy.ToLower() == "territory")
+                {
+                    //determine the current page number
+                    int pagenumber = currentPage.HasValue ? currentPage.Value : 1;
+                    //setup the current state of the paginator (sizing)
+                    PageState current = new(pagenumber, PAGE_SIZE);
+                    //temporary local integer to hold the results of the query's total collection size
+                    //  this will be need by the Paginator during the paginator's execution
+                    int totalcount;
 
-                //we need to pass paging data into our query so that efficiencies in the
-                //  system will ONLY return the amount of records to actually be display
-                //  on the browser page.
+                    try
+                    {
+                        QueryResultList = _territoryServices.FindByPartialName(SearchValue, pagenumber, PAGE_SIZE, out totalcount);
+                        //create the needed Pagnator instance
+                        Pager = new Paginator(totalcount, current);
 
-                //QueryResultList = _territoryServices.List();
-                QueryResultList = _territoryServices.List(
-                                    pagenumber, PAGE_SIZE, out totalcount);
+                        InfoMessage = $"Query returned {QueryResultList.Count} results";
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = $"Error searching by territory with exception: {ex.Message} ";
+                    }
 
-                //create the needed Pagnator instance
-                Pager = new Paginator(totalcount, current);
+                }
+                else if (SearchBy.ToLower() == "region")
+                {
+                    //determine the current page number
+                    int pagenumber = currentPage.HasValue ? currentPage.Value : 1;
+                    //setup the current state of the paginator (sizing)
+                    PageState current = new(pagenumber, PAGE_SIZE);
+                    //temporary local integer to hold the results of the query's total collection size
+                    //  this will be need by the Paginator during the paginator's execution
+                    int totalcount;
 
+                    try
+                    {
+                        int selectedRegionId = int.Parse(SearchValue);
+                        QueryResultList = _territoryServices.FindByRegionId(selectedRegionId, pagenumber, PAGE_SIZE, out totalcount);
+                        //create the needed Pagnator instance
+                        Pager = new Paginator(totalcount, current);
 
-                InfoMessage = $"Query returned {QueryResultList.Count} result.s";
-            }
-            catch
-            {
-                ErrorMessage = "Error reading territories";
+                        InfoMessage = $"Query returned {QueryResultList.Count} results";
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = $"Error searching by region with exception: {ex.Message} ";
+                    }
+                }
+                else
+                {
+                    ErrorMessage = $"{SearchBy} is not a supported search by value";
+                }
             }
         }
 
-        public void OnPostFilterByTerritory()
+        public IActionResult OnPostFilterByTerritory()
         {
-            //if (TerritoryQuery != null)
-            //{
-            //    QueryResultList = _territoryServices.FindByPartialName(TerritoryQuery);
-            //}
-            //else
-            //{
-            //    FeedbackMessage = "You need to enter a territory first.";
-            //}
+            IActionResult nextPage = Page();
+            if (TerritoryQuery != null)
+            {
+                //QueryResultList = _territoryServices.FindByPartialName(TerritoryQuery);
+                SearchBy = "territory";
+                SearchValue = TerritoryQuery;
+                nextPage = RedirectToPage(new { SearchBy = SearchBy, SearchValue = TerritoryQuery });
+            }
+            else
+            {
+                FeedbackMessage = "You need to enter a territory first.";
+            }
+
+            return nextPage;
         }
 
-        public void OnPostFilterByRegion()
+        public IActionResult OnPostFilterByRegion()
         {
+            IActionResult nextPage = Page();
             // Check if a valid region was selected
-            //if (SelectedRegionId.HasValue)
-            //{
-            //    QueryResultList = _territoryServices.FindByRegionId(SelectedRegionId.Value);
-            //}
-            //else
-            //{
-            //    FeedbackMessage = "You must select a region first.";
-            //}
+            if (SelectedRegionId.HasValue)
+            {
+                //QueryResultList = _territoryServices.FindByRegionId(SelectedRegionId.Value);
+                SearchBy = "region";
+                SearchValue = SelectedRegionId.Value.ToString();
+                nextPage = RedirectToPage(new { SearchBy = SearchBy, SearchValue = SearchValue });
+            }
+            else
+            {
+                FeedbackMessage = "You must select a region first.";
+            }
+
+            return nextPage;
         }
     }
 }

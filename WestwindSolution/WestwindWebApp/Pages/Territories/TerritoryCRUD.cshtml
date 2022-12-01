@@ -1,0 +1,83 @@
+﻿@page "{EditTerritoryId?}"
+
+@model WestwindWebApp.Pages.Territories.TerritoryCRUDModel
+@{
+}
+
+<h1>Territory Maintenance  </h1>
+@if (Model.EditTerritoryId != null)
+{
+    <h2>Edit Territory @Model.EditTerritoryId</h2>
+}
+else
+{
+    <h2>New Territory</h2>
+}
+
+<div class="alert alert-info">
+    @Model.InfoMessage
+</div>
+
+<div class="alert alert-danger">
+    @Model.ErrorMessage
+</div>
+
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div>
+        <label asp-for="CurrentTerritory.TerritoryId">ID:</label>
+        <input asp-for="CurrentTerritory.TerritoryId"
+               class="form-control" />
+        <span asp-validation-for="CurrentTerritory.TerritoryId"></span>
+    </div>
+    <div>
+        <label asp-for="CurrentTerritory.TerritoryDescription">Description:</label>
+        <input asp-for="CurrentTerritory.TerritoryDescription"
+               class="form-control" />
+        <span asp-validation-for="CurrentTerritory.TerritoryDescription"></span>
+    </div>
+    <div>
+        <label asp-for="SelectedRegionId">Select region:</label>
+        <select asp-for="SelectedRegionId"
+                asp-items="Model.RegionSelectList"
+                class="form-select">
+            <option>--- select a region ---</option>
+        </select>
+        <span asp-validation-for="CurrentTerritory.RegionId"></span>
+    </div>
+
+    <div>
+        <button type="submit"
+                asp-page-handler="SaveNew"
+                class="btn btn-primary">
+            Save New
+        </button>
+        <button type="submit"
+                asp-page-handler="Update"
+                class="btn btn-info">
+            Update
+        </button>
+        <button type="submit"
+                asp-page-handler="Delete"
+                class="btn btn-danger"
+                formnovalidate
+                onclick="return confirm('Are you sure you wish to delete this item?')">
+            Delete
+        </button>
+        <button type="submit"
+                asp-page-handler="Clear"
+                class="btn btn-secondary"
+                formnovalidate>
+            Clear
+        </button>
+        <button type="submit"
+                asp-page-handler="NewTerritory"
+                class="btn btn-link"
+                formnovalidate>
+            Search
+        </button>
+    </div>
+
+</form>
