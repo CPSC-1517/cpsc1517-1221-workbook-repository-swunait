@@ -29,7 +29,7 @@ namespace WestwindWebApp.Pages.Territories
         
         public string? FeedbackMessage { get; set; }
 
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public string TerritoryQuery { get; set; }
 
         #region Paginator
@@ -39,6 +39,7 @@ namespace WestwindWebApp.Pages.Territories
         public Paginator Pager { get; set; }
         #endregion
 
+        [BindProperty(SupportsGet = true)]
         public string InfoMessage { get; set; }
         public string ErrorMessage { get; set; }
 

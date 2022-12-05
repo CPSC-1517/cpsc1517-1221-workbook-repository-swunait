@@ -52,39 +52,49 @@ namespace WestwindWebApp.Pages.Territories
         {
             IActionResult nextPage = Page();
 
-
-            CurrentTerritory.RegionId = SelectedRegionId.Value;
-            // Remove the Territory key from ModelState of the CurrentTerritory
-            // to work around issue where the generated entities include navigation properties that are not set yet
-            ModelState.Remove("CurrentTerritory.Region");
-            //CurrentTerritory.Region = _regionService.GetById(SelectedRegionId.Value);
-
-
-            if (ModelState.IsValid && CurrentTerritory != null)
+            if (SelectedRegionId.HasValue && SelectedRegionId.Value > 0)
             {
-                try
+                int regionId = SelectedRegionId.Value;
+                CurrentTerritory.RegionId = regionId;
+                // Remove the Territory key from ModelState of the CurrentTerritory
+                // to work around issue where the generated entities include navigation properties that are not set yet
+                ModelState.Remove("CurrentTerritory.Region");
+                //CurrentTerritory.Region = _regionService.GetById(SelectedRegionId.Value);
+
+                if (ModelState.IsValid && CurrentTerritory != null)
                 {
-                    _territoryServices.AddTerritory(CurrentTerritory);
-                    InfoMessage = "Save New was successful";
-                    //EditTerritoryId = CurrentTerritory.TerritoryId;
-                    nextPage = RedirectToPage(new { EditTerritoryId = CurrentTerritory.TerritoryId });
+                    try
+                    {
+                        _territoryServices.AddTerritory(CurrentTerritory);
+                        InfoMessage = "Save New was successful";
+                        //EditTerritoryId = CurrentTerritory.TerritoryId;
+                        nextPage = RedirectToPage(new { EditTerritoryId = CurrentTerritory.TerritoryId });
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = GetInnerException(ex).Message;
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    ErrorMessage = GetInnerException(ex).Message;
+                    ErrorMessage = $"<p>ModelState is not valid with the following errors:</p>";
+                    ErrorMessage += "<ul>";
+                    foreach (var modelState in ViewData.ModelState.Values)
+                    {
+                        foreach (var error in modelState.Errors)
+                        {
+                            ErrorMessage += $"<li>{error.ErrorMessage}</li>";
+                        }
+                    }
+                    ErrorMessage += "</ul>";
                 }
             }
             else
             {
-                ErrorMessage = $"ModelState is not valid.";
-                foreach (var modelState in ViewData.ModelState.Values)
-                {
-                    foreach (var error in modelState.Errors)
-                    {
-                        ErrorMessage += error.ErrorMessage + "<br />";
-                    }
-                }
+                ErrorMessage = "A valid Region must be selected";
             }
+
+            
 
             return nextPage;
         }
@@ -99,49 +109,63 @@ namespace WestwindWebApp.Pages.Territories
                     SelectedRegionId = CurrentTerritory.RegionId;
                 }
             }
+            else
+            {
+                ErrorMessage = null;
+            }
         }
 
         public IActionResult OnPostUpdate()
         {
             IActionResult nextPage = Page();
 
-            CurrentTerritory.RegionId = SelectedRegionId.Value;
-            // Remove the Territory key from ModelState of the CurrentTerritory
-            // to work around issue where the generated entities include navigation properties that are not set yet
-            ModelState.Remove("CurrentTerritory.Region");
-            CurrentTerritory.Region = _regionService.GetById(SelectedRegionId.Value);
-
-            if (ModelState.IsValid && CurrentTerritory != null)
+            if (SelectedRegionId.HasValue && SelectedRegionId.Value > 0)
             {
-                try
-                {
-                    int rowsAffected = _territoryServices.UpdateTerritory(CurrentTerritory);
-                    if (rowsAffected == 1)
-                    {
-                        InfoMessage = "Update was successful";
-                    }
-                    else
-                    {
-                        InfoMessage = "Update was not successful";
-                    }
+                int regionId = SelectedRegionId.Value;
+                CurrentTerritory.RegionId = regionId;
+                // Remove the Territory key from ModelState of the CurrentTerritory
+                // to work around issue where the generated entities include navigation properties that are not set yet
+                ModelState.Remove("CurrentTerritory.Region");
+                CurrentTerritory.Region = _regionService.GetById(SelectedRegionId.Value);
 
-                }
-                catch (Exception ex)
+                if (ModelState.IsValid && CurrentTerritory != null)
                 {
-                    ErrorMessage = GetInnerException(ex).Message;
+                    try
+                    {
+                        int rowsAffected = _territoryServices.UpdateTerritory(EditTerritoryId, CurrentTerritory);
+                        if (rowsAffected == 1)
+                        {
+                            InfoMessage = "Update was successful";
+                        }
+                        else
+                        {
+                            InfoMessage = "Update was not successful";
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = GetInnerException(ex).Message;
+                    }
+                }
+                else
+                {
+                    ErrorMessage = $"ModelState is not valid.";
+                    foreach (var modelState in ViewData.ModelState.Values)
+                    {
+                        foreach (var error in modelState.Errors)
+                        {
+                            ErrorMessage += error.ErrorMessage + "<br />";
+                        }
+                    }
                 }
             }
             else
             {
-                ErrorMessage = $"ModelState is not valid.";
-                foreach (var modelState in ViewData.ModelState.Values)
-                {
-                    foreach (var error in modelState.Errors)
-                    {
-                        ErrorMessage += error.ErrorMessage + "<br />";
-                    }
-                }
+                ErrorMessage = $"A valid region must be selected.";
             }
+
+           
 
             return nextPage;
         }
@@ -158,6 +182,8 @@ namespace WestwindWebApp.Pages.Territories
                     if (rowsAffected == 1)
                     {
                         InfoMessage = "Delete was successful.";
+                        //nextPage = RedirectToPage("/Territories/Query", new { InfoMessage = InfoMessage});
+                        nextPage = RedirectToPage(new { EditTerritoryId = (int?) null});
                     }
                     else
                     {
@@ -188,7 +214,7 @@ namespace WestwindWebApp.Pages.Territories
 
         public IActionResult OnPostSearch()
         {
-            IActionResult nextPage = RedirectToPage("/Territories/Query");
+            IActionResult nextPage = Redirect("/Territories/Query");
 
             return nextPage;
         }

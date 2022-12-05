@@ -1,4 +1,4 @@
-﻿@page "{SearchBy?}/{SearchValue?}"
+﻿@page "{SearchBy?}/{SearchValue?}/{TerritoryQuery?}"
 @model WestwindWebApp.Pages.Territories.QueryModel
 @{
 }
@@ -96,7 +96,9 @@
                                 //  MUST be based from the folder name Pages
                                 <a title="Page @pageRef.Page"
                                    asp-page="/Territories/Query"
-                                   asp-route-currentpage="@pageRef.Page">
+                                   asp-route-currentpage="@pageRef.Page"
+                                   asp-route-TerritoryQuery="@Model.TerritoryQuery"
+                                   >
                                     @pageRef.Text
                                 </a>
                             }

@@ -131,9 +131,20 @@ namespace WestwindSystem.BLL
             return query.FirstOrDefault();
         }
 
-        public int UpdateTerritory(Territory existingTerritory)
+        public int UpdateTerritory(string editId, Territory existingTerritory)
         {
-            _dbContext.Territories.Attach(existingTerritory).State = EntityState.Modified;
+            //_dbContext.Territories.Attach(existingTerritory).State = EntityState.Modified;
+            Territory? queryTerritorySingleResult = _dbContext
+                .Territories
+                .FirstOrDefault(currentTerritory => currentTerritory.TerritoryId == editId);
+            if (queryTerritorySingleResult == null)
+            {
+                throw new ArgumentException($"Invalid territoryId of {editId}");
+            }
+            // Change only the properties that is allowed to be changed
+            queryTerritorySingleResult.TerritoryDescription = existingTerritory.TerritoryDescription;
+            queryTerritorySingleResult.RegionId = existingTerritory.RegionId;
+
             int rowsUpdated = _dbContext.SaveChanges();
             return rowsUpdated;
         }
