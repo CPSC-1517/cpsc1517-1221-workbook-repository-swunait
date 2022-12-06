@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 using WestwindSystem.BLL;
 using WestwindSystem.Entities;
 
@@ -21,7 +22,7 @@ namespace WestwindWebApp.Pages.Territories
 
         public SelectList RegionSelectList { get; private set; }
 
-        [BindProperty(SupportsGet = true)]
+        [BindProperty(SupportsGet = true)]        
         public int? SelectedRegionId { get; set; }
 
         [TempData]
@@ -58,7 +59,7 @@ namespace WestwindWebApp.Pages.Territories
                 CurrentTerritory.RegionId = regionId;
                 // Remove the Territory key from ModelState of the CurrentTerritory
                 // to work around issue where the generated entities include navigation properties that are not set yet
-                ModelState.Remove("CurrentTerritory.Region");
+               ModelState.Remove("CurrentTerritory.Region");
                 //CurrentTerritory.Region = _regionService.GetById(SelectedRegionId.Value);
 
                 if (ModelState.IsValid && CurrentTerritory != null)
@@ -67,6 +68,7 @@ namespace WestwindWebApp.Pages.Territories
                     {
                         _territoryServices.AddTerritory(CurrentTerritory);
                         InfoMessage = "Save New was successful";
+                        ErrorMessage = null;
                         //EditTerritoryId = CurrentTerritory.TerritoryId;
                         nextPage = RedirectToPage(new { EditTerritoryId = CurrentTerritory.TerritoryId });
                     }
@@ -92,6 +94,7 @@ namespace WestwindWebApp.Pages.Territories
             else
             {
                 ErrorMessage = "A valid Region must be selected";
+                ModelState.AddModelError("SelectedRegionId", "ModelState error: A valid Region must be selected");
             }
 
             
@@ -208,7 +211,7 @@ namespace WestwindWebApp.Pages.Territories
             EditTerritoryId = null;
             CurrentTerritory = new();
             ModelState.Clear();
-
+            ErrorMessage = null;
             return nextPage;
         }
 

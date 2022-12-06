@@ -36,22 +36,22 @@ else
         <label asp-for="CurrentTerritory.TerritoryId">ID:</label>
         <input asp-for="CurrentTerritory.TerritoryId"
                class="form-control" />
-        <span asp-validation-for="CurrentTerritory.TerritoryId"></span>
+        <span asp-validation-for="CurrentTerritory.TerritoryId" class="text-danger"></span>
     </div>
     <div>
         <label asp-for="CurrentTerritory.TerritoryDescription">Description:</label>
         <input asp-for="CurrentTerritory.TerritoryDescription"
                class="form-control" />
-        <span asp-validation-for="CurrentTerritory.TerritoryDescription"></span>
+        <span asp-validation-for="CurrentTerritory.TerritoryDescription" class="text-danger"></span>
     </div>
     <div>
         <label asp-for="SelectedRegionId">Select region:</label>
         <select asp-for="SelectedRegionId"
                 asp-items="Model.RegionSelectList"
                 class="form-select">
-            <option>--- select a region ---</option>
+            <option value="@(null)">--- select a region ---</option>
         </select>
-        <span asp-validation-for="CurrentTerritory.RegionId"></span>
+        <span asp-validation-for="CurrentTerritory.RegionId" class="text-danger"></span>
     </div>
 
     <div>
@@ -95,3 +95,7 @@ else
     </div>
 
 </form>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+}
