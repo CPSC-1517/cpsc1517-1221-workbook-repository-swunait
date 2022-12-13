@@ -117,6 +117,16 @@ namespace WestwindSystem.BLL
                 throw new ArgumentException($"The TerritoryId {newTerritory.TerritoryId} already exist.");
             }
 
+            Region? territoryRegion = _dbContext
+                .Regions
+                .Where(currentRegion => currentRegion.RegionId == newTerritory.RegionId)
+                .FirstOrDefault();
+            if (territoryRegion == null)
+            {
+                throw new ArgumentException($"The regionId {newTerritory.RegionId} is invalid.");
+            }
+            newTerritory.Region = territoryRegion;
+
             _dbContext.Territories.Add(newTerritory);
             _dbContext.SaveChanges();
             return newTerritory.TerritoryId;
